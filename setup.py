@@ -4,7 +4,7 @@ setup(
     name='replies_with_time',
     version='0.1',
     packages=[''],
-    requires=['tweepy'],
+    requires=['tweepy', "arrow"],
     url='https://www.eons.io',
     license='MIT',
     author='Sondre Nilsen',
