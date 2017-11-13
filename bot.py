@@ -10,8 +10,14 @@ auth.set_access_token(access_token, access_secret)
 api = tweepy.API(auth)
 
 
-class BotStreamer(tweepy.StreamListener):
+def the_time(offset: int) -> Tuple[str, str]:
+    init = arrow.utcnow().shift(hours=offset/3600)
+    time = init.format("HH:mm")
+    date = init.format("dddd DD")
+    return time, date
 
+
+class BotStreamer(tweepy.StreamListener):
     def on_status(self, status: any) -> None:
         print(status)
         username = status.user.screen_name
@@ -27,13 +33,7 @@ class BotStreamer(tweepy.StreamListener):
         api.update_status(status=status, in_reply_to_status=status_id)
 
 
-def the_time(offset: int) -> Tuple[str, str]:
-    init = arrow.utcnow().shift(hours=offset/3600)
-    time = init.format("HH:mm")
-    date = init.format("dddd DD")
-    return time, date
-
-
-listener = BotStreamer()
-stream = tweepy.Stream(auth, listener)
-stream.filter(track=['@replieswithtime'])
+if __name__ == "__main__":
+    listener = BotStreamer()
+    stream = tweepy.Stream(auth, listener)
+    stream.filter(track=['@replieswithtime'])
