@@ -32,9 +32,12 @@ class BotStreamer(tweepy.StreamListener):
         if location:
             status += f" in {location}"
         api.update_status(status=status, in_reply_to_status=status_id)
+        print(status)
+        print("[Posted new status!]")
 
 
 if __name__ == "__main__":
+    print("[Bot starting up...]")
     listener = BotStreamer()
     stream = tweepy.Stream(auth, listener)
     stream.filter(track=['@RepliesWithTime'])
