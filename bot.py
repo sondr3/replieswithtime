@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Any
 
 import tweepy
 import arrow
@@ -18,7 +18,7 @@ def the_time(offset: int) -> Tuple[str, str]:
 
 
 class BotStreamer(tweepy.StreamListener):
-    def on_status(self, status: any) -> None:
+    def on_status(self, status: Any) -> None:
         print(status)
         username = status.user.screen_name
         status_id = status.id
