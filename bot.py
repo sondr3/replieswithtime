@@ -36,4 +36,4 @@ class BotStreamer(tweepy.StreamListener):
 if __name__ == "__main__":
     listener = BotStreamer()
     stream = tweepy.Stream(auth, listener)
-    stream.filter(track=['@replieswithtime'])
+    stream.filter(track=['@RepliesWithTime'])
