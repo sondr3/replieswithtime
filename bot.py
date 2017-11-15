@@ -51,6 +51,8 @@ class BotStreamer(tweepy.StreamListener):
         status = f"@{username}, the time is {time} on {date}"
         if location:
             status += f" in {location}."
+        else:
+            status += "."
         status += f"{greeting()}"
         twitter.update_status(status=status, in_reply_to_status=status_id)
         print(status)
