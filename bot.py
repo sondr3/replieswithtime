@@ -52,7 +52,7 @@ class BotStreamer(tweepy.StreamListener):
         if location:
             status += f" in {location}."
         else:
-            status += "."
+            status += ". "
         status += f"{greeting()}"
         twitter.update_status(status=status, in_reply_to_status=status_id)
         print(status)
