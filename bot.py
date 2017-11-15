@@ -20,7 +20,7 @@ def the_time(offset: int) -> Tuple[str, str]:
     """Find the time at the users location and returns the time and date."""
     init = arrow.utcnow().shift(hours=offset/3600)
     time = init.format("HH:mm")
-    date = init.format("dddd DD")
+    date = init.format("dddd, MMMM Do")
     return time, date
 
 
@@ -41,7 +41,7 @@ class BotStreamer(tweepy.StreamListener):
 
         status = f"@{username}, the time is {time} on {date}"
         if location:
-            status += f" in {location}"
+            status += f" in {location}."
         twitter.update_status(status=status, in_reply_to_status=status_id)
         print(status)
         print("[Posted new status!]")
