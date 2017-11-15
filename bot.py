@@ -1,5 +1,6 @@
 """A dumb twitter bot that replies with the time if asked."""
 from typing import Tuple, Any
+import random
 
 from secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET
 
@@ -24,6 +25,14 @@ def the_time(offset: int) -> Tuple[str, str]:
     return time, date
 
 
+def greeting() -> str:
+    """Return a nice greeting for our replier."""
+    greetings = ['Have a nice day!', 'Enjoy!', 'Have a great day!',
+                 'Have a good one!', 'Take care!', 'Go forth and prosper']
+
+    return random.choice(greetings)
+
+
 class BotStreamer(tweepy.StreamListener):
     """Listen on Twitter and posts a new tweet if bot is mentioned."""
 
@@ -42,6 +51,7 @@ class BotStreamer(tweepy.StreamListener):
         status = f"@{username}, the time is {time} on {date}"
         if location:
             status += f" in {location}."
+        status += f"{greeting()}"
         twitter.update_status(status=status, in_reply_to_status=status_id)
         print(status)
         print("[Posted new status!]")
