@@ -50,7 +50,7 @@ class BotStreamer(tweepy.StreamListener):
 
         status = f"@{username}, the time is {time} on {date}"
         if location:
-            status += f" in {location}."
+            status += f" in {location}. "
         else:
             status += ". "
         status += f"{greeting()}"
