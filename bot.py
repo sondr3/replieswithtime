@@ -1,16 +1,23 @@
+"""A dumb twitter bot that replies with the time if asked."""
 from typing import Tuple, Any
 
+from secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET
+
 import tweepy
+from tweepy import OAuthHandler
 import arrow
-from secrets import *
 
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_secret)
 
-api = tweepy.API(auth)
+def authenticate() -> Tuple[tweepy.API, OAuthHandler]:
+    """Authenticate the bot with Twitter and return the API and handle."""
+    twitter_auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    twitter_auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
+
+    return tweepy.API(twitter_auth), twitter_auth
 
 
 def the_time(offset: int) -> Tuple[str, str]:
+    """Find the time at the users location and returns the time and date."""
     init = arrow.utcnow().shift(hours=offset/3600)
     time = init.format("HH:mm")
     date = init.format("dddd DD")
@@ -18,8 +25,12 @@ def the_time(offset: int) -> Tuple[str, str]:
 
 
 class BotStreamer(tweepy.StreamListener):
+    """Listen on Twitter and posts a new tweet if bot is mentioned."""
+
     @staticmethod
     def on_status(status: Any) -> None:
+        """Reply to the user who mentioned the bot."""
+        twitter = authenticate()[0]
         print(status)
         username = status.user.screen_name
         status_id = status.id
@@ -31,13 +42,14 @@ class BotStreamer(tweepy.StreamListener):
         status = f"@{username}, the time is {time} on {date}"
         if location:
             status += f" in {location}"
-        api.update_status(status=status, in_reply_to_status=status_id)
+        twitter.update_status(status=status, in_reply_to_status=status_id)
         print(status)
         print("[Posted new status!]")
 
 
 if __name__ == "__main__":
+    API, AUTH = authenticate()
     print("[Bot starting up...]")
-    listener = BotStreamer()
-    stream = tweepy.Stream(auth, listener)
-    stream.filter(track=['@RepliesWithTime'])
+    LISTENER = BotStreamer()
+    STREAM = tweepy.Stream(AUTH, LISTENER)
+    STREAM.filter(track=['@RepliesWithTime'])
