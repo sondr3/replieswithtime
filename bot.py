@@ -1,28 +1,16 @@
 """A dumb twitter bot that replies with the time if asked."""
-from typing import Tuple, Any
 import random
+from typing import Dict
+
+import pendulum
+from TwitterAPI import TwitterAPI
 
 from secrets import CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET
 
-import tweepy
-from tweepy import OAuthHandler
-import arrow
 
-
-def authenticate() -> Tuple[tweepy.API, OAuthHandler]:
+def authenticate() -> TwitterAPI:
     """Authenticate the bot with Twitter and return the API and handle."""
-    twitter_auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    twitter_auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
-
-    return tweepy.API(twitter_auth), twitter_auth
-
-
-def the_time(offset: int) -> Tuple[str, str]:
-    """Find the time at the users location and returns the time and date."""
-    init = arrow.utcnow().shift(hours=offset/3600)
-    time = init.format("HH:mm")
-    date = init.format("dddd, MMMM Do")
-    return time, date
+    return TwitterAPI(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET)
 
 
 def greeting() -> str:
@@ -33,35 +21,26 @@ def greeting() -> str:
     return random.choice(greetings)
 
 
-class BotStreamer(tweepy.StreamListener):
-    """Listen on Twitter and posts a new tweet if bot is mentioned."""
+def reply(tweet: Dict, api: TwitterAPI) -> None:
+    """Reply to the user who mentioned the bot."""
+    username = tweet['user']['screen_name']
+    status_id = tweet['id']
 
-    @staticmethod
-    def on_status(status: Any) -> None:
-        """Reply to the user who mentioned the bot."""
-        twitter = authenticate()[0]
-        print(status)
-        username = status.user.screen_name
-        status_id = status.id
-        offset = status.user.utc_offset
-        location = status.user.location
+    time = pendulum.now().format("HH:mm")
+    date = pendulum.now().format("dddd, MMMM Do")
 
-        time, date = the_time(offset)
-
-        status = f"@{username}, the time is {time} on {date}"
-        if location:
-            status += f" in {location}. "
-        else:
-            status += ". "
-        status += f"{greeting()}"
-        twitter.update_status(status=status, in_reply_to_status=status_id)
-        print(status)
-        print("[Posted new status!]")
+    status = f"@{username}, the time is {time} on {date}. "
+    status += f"{greeting()}"
+    api.request('statuses/update', {'status': status, 'in_reply_to_status': status_id})
+    print(status)
+    print("[Posted new status!]")
 
 
 if __name__ == "__main__":
-    API, AUTH = authenticate()
     print("[Bot starting up...]")
-    LISTENER = BotStreamer()
-    STREAM = tweepy.Stream(AUTH, LISTENER)
-    STREAM.filter(track=['@RepliesWithTime'])
+    API = authenticate()
+    while True:
+        stream = API.request('statuses/filter', {'track': '@RepliesWithTime'})
+        for t in stream.get_iterator():
+            print(t)
+            reply(t, API)
