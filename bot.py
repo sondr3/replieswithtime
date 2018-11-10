@@ -26,10 +26,10 @@ def reply(tweet: Dict, api: TwitterAPI) -> None:
     username = tweet['user']['screen_name']
     status_id = tweet['id']
 
-    time = pendulum.now().format("HH:mm")
-    date = pendulum.now().format("dddd, MMMM Do")
+    time = pendulum.now(tz="UTC").format("HH:mm")
+    date = pendulum.now(tz="UTC").format("dddd, MMMM Do")
 
-    status = f"@{username}, the time is {time} on {date}. "
+    status = f"@{username}, GMT time is {time}, {date}. "
     status += f"{greeting()}"
     api.request('statuses/update', {'status': status, 'in_reply_to_status': status_id})
     print(status)
