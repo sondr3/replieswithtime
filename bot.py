@@ -31,7 +31,7 @@ def reply(tweet: Dict, api: TwitterAPI) -> None:
 
     status = f"@{username}, GMT time is {time}, {date}. "
     status += f"{greeting()}"
-    api.request('statuses/update', {'status': status, 'in_reply_to_status': status_id})
+    api.request('statuses/update', {'status': status, 'in_reply_to_status_id': status_id})
     print(status)
     print("[Posted new status!]")
 
